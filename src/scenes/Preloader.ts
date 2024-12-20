@@ -22,11 +22,17 @@ export class Preloader extends Scene
 
     preload()
     {
+        this.load.font("Alatsi", "assets/fonts/Alatsi-Regular.ttf");
+
         this.load.spritesheet("spritesheet-fish1", "assets/tilemaps/spritesheet-fish1.png", {
             frameWidth: 128,
             frameHeight: 128
         })
         this.load.spritesheet("backobjects-fish1", "assets/tilemaps/backobjects-fish1.png", {
+            frameWidth: 128,
+            frameHeight: 128
+        })
+        this.load.spritesheet("frontobjects-fish1", "assets/tilemaps/frontobjects-fish1.png", {
             frameWidth: 128,
             frameHeight: 128
         })

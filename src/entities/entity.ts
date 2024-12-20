@@ -3,22 +3,23 @@ import IComponent from '../components/IComponent';
 
 export default class Entity extends Phaser.GameObjects.Sprite
 {
-  private components: IComponent[];
-  public moves: boolean = false;
+  private components: Map<string, IComponent>;
+  public readonly moves: boolean = false;
 
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string)
   {
     super(scene, x, y, texture);
+    this.components = new Map<string, IComponent>();
     scene.add.existing(this);
   }
 
-  addComponent()
+  addComponent(component: IComponent): void
   {
-
+    this.components.set(component.name, component);
   }
 
-  update()
+  getComponent(componentName: string): IComponent | undefined
   {
-    // Add custom update logic here
+    return this.components.get(componentName);
   }
 }
