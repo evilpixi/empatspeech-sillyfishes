@@ -25,5 +25,10 @@ export default class ClickableSystem implements ISystem
     {
       gameObject.off("pointerdown", clickableComponent.onClick);
     });
+
+    gameObject.once(Phaser.Scenes.Events.DESTROY, () =>
+    {
+      gameObject.off("pointerdown", clickableComponent.onClick);
+    });
   }
 }

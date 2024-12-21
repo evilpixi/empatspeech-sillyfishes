@@ -1,18 +1,28 @@
 import { Scene } from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../consts';
 import Entity from '../entities/Entity';
+import ClickableComponent from '../components/ClickableComponent';
 import ClickableSystem from '../systems/ClickableSystem';
-import IdleAnimationSystem from '../systems/IdleAnimationSystem';
 import IdleAnimationComponent from '../components/IdleAnimationComponent';
+import IdleAnimationSystem from '../systems/IdleAnimationSystem';
+import FadeInComponent from '../components/FadeInComponent';
+import FadeInSystem from '../systems/FadeInSystem';
+import RandomMovementComponent from '../components/RandomMovementComponent';
+import RandomMovementSystem from '../systems/RandomMovementSystem';
 import UIButton from '../ui/UIButton';
+import Fish from '../entities/Fish';
 
 const FISH_HEIGHT = GAME_HEIGHT * 0.7;
+const MARGIN = 20;
 
 export class Game extends Scene
 {
+  private randomMovementSystem: RandomMovementSystem;
+  private fadeInSystem: FadeInSystem;
   private clickableSystem: ClickableSystem;
   private idleAnimationSystem: IdleAnimationSystem;
   private idleAnimationEntities: Entity[] = [];
+  private fishData: Fish[];
 
   constructor()
   {
@@ -21,9 +31,12 @@ export class Game extends Scene
 
   create()
   {
+    this.randomMovementSystem = new RandomMovementSystem(this);
+    this.fadeInSystem = new FadeInSystem(this);
     this.clickableSystem = new ClickableSystem(this);
     this.idleAnimationSystem = new IdleAnimationSystem(this);
     this.idleAnimationEntities = [];
+    this.fishData = this.cache.json.get('fishdata').map((data: any) => new Fish(data));
 
 
     // --------------------------------------------------
@@ -78,7 +91,37 @@ export class Game extends Scene
     // --------------------------------------------------
     new UIButton(this, GAME_WIDTH - 200, GAME_HEIGHT - 100, 'Spawn Fish', () =>
     {
-      //this.scene.start('MainMenu');
+      this.SpawnFish();
     });
+  }
+
+  SpawnFish()
+  {
+    // select a random fish from the fishData array
+    const randomIndex: number = Math.floor(Math.random() * this.fishData.length);
+    const fishData = this.fishData[randomIndex];
+    if (!fishData) return;
+
+    const randomX = Phaser.Math.Between(MARGIN, GAME_WIDTH - MARGIN);
+    const randomY = Phaser.Math.Between(MARGIN, FISH_HEIGHT - MARGIN);
+    const fish = new Entity(this, randomX, randomY, fishData.id);
+
+    // add a clickable component to the fish
+    const handleClick = () => { console.log("Fish Clicked!: " + fishData.name); };
+    fish.addComponent(new ClickableComponent(handleClick));
+    this.clickableSystem.processEntity(fish);
+
+    // fade in the fish
+    fish.addComponent(new FadeInComponent(1000));
+    this.fadeInSystem.processEntity(fish);
+
+    // random movement fish
+    fish.addComponent(new RandomMovementComponent({
+      area: new Phaser.Geom.Rectangle(MARGIN, MARGIN, GAME_WIDTH - MARGIN * 2, FISH_HEIGHT - MARGIN * 2),
+      speed: 5000,
+      waitTime: 300
+    }));
+    console.log(fish);
+    this.randomMovementSystem.processEntity(fish);
   }
 }

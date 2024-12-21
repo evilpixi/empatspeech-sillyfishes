@@ -37,6 +37,11 @@ export class Preloader extends Scene
             frameHeight: 128
         })
         this.load.tilemapTiledJSON('map-fish1', 'assets/tilemaps/map-fish1.json');
+
+        for (let fish of this.cache.json.get('fishdata'))
+        {
+            this.load.image(fish.id, `assets/sprites/${fish.id}.png`);
+        }
     }
 
     create()

@@ -1,16 +1,30 @@
-import Phaser from 'phaser';
-
-export default class Fish extends Phaser.GameObjects.Sprite
+export default class Fish
 {
-  constructor(scene: Phaser.Scene, x: number, y: number, texture: string)
-  {
-    super(scene, x, y, texture);
-    scene.add.existing(this);
-    scene.physics.add.existing(this);
-  }
+  name: string;
+  id: string;
+  canSwim: boolean;
+  canGroup: boolean;
+  isLong: boolean;
+  width: number;
+  height: number;
 
-  update()
+  constructor(data:
+    {
+      name: string;
+      id: string;
+      canSwim: boolean;
+      canGroup: boolean;
+      isLong: boolean;
+      width: number;
+      height: number
+    })
   {
-    // Add custom update logic here
+    this.name = data.name;
+    this.id = data.id;
+    this.canSwim = data.canSwim;
+    this.canGroup = data.canGroup;
+    this.isLong = data.isLong;
+    this.width = data.width;
+    this.height = data.height;
   }
 }
