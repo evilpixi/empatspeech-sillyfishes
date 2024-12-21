@@ -1,0 +1,11 @@
+[
+  {
+    "name": "Red Fish",
+    "id": "redfish",
+    "canswim": true,
+    "cangroup": true,
+    "islong": false,
+    "width": 128,
+    "height": 128
+  }
+]

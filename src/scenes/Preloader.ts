@@ -1,4 +1,5 @@
 import { Scene } from 'phaser';
+import { GAME_WIDTH, GAME_HEIGHT } from '../consts';
 
 export class Preloader extends Scene
 {
@@ -9,16 +10,38 @@ export class Preloader extends Scene
 
     init()
     {
-        this.add.rectangle(512, 384, 468, 32).setStrokeStyle(1, 0xffffff); const bar = this.add.rectangle(512 - 230, 384, 4, 28, 0xffffff);
+        const progressBarWidth = 500;
+        const progressBarHeight = 32;
+        this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, progressBarWidth, progressBarHeight).setStrokeStyle(1, 0xffffff);
+        const bar = this.add.rectangle(GAME_WIDTH / 2 - progressBarWidth / 2, GAME_HEIGHT / 2, 4, 28, 0xffffff);
         this.load.on('progress', (progress: number) =>
         {
-            bar.width = 4 + (460 * progress);
+            bar.width = 4 + (progressBarWidth * progress);
         });
     }
 
     preload()
     {
+        this.load.font("Alatsi", "assets/fonts/Alatsi-Regular.ttf");
 
+        this.load.spritesheet("spritesheet-fish1", "assets/tilemaps/spritesheet-fish1.png", {
+            frameWidth: 128,
+            frameHeight: 128
+        })
+        this.load.spritesheet("backobjects-fish1", "assets/tilemaps/backobjects-fish1.png", {
+            frameWidth: 128,
+            frameHeight: 128
+        })
+        this.load.spritesheet("frontobjects-fish1", "assets/tilemaps/frontobjects-fish1.png", {
+            frameWidth: 128,
+            frameHeight: 128
+        })
+        this.load.tilemapTiledJSON('map-fish1', 'assets/tilemaps/map-fish1.json');
+
+        for (let fish of this.cache.json.get('fishdata'))
+        {
+            this.load.image(fish.id, `assets/sprites/${fish.id}.png`);
+        }
     }
 
     create()
