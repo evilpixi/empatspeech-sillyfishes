@@ -1,5 +1,5 @@
 import ISystem from "./ISystem";
-import Entity from "../entities/Entity";
+import Entity from "../entities/entity2";
 import Component from "../components/ComponentConsts";
 import IdleAnimationComponent from "../components/IdleAnimationComponent";
 

@@ -1,6 +1,6 @@
 import { Scene } from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../consts';
-import Entity from '../entities/Entity';
+import Entity from '../entities/entity2';
 import ClickableComponent from '../components/ClickableComponent';
 import ClickableSystem from '../systems/ClickableSystem';
 import IdleAnimationComponent from '../components/IdleAnimationComponent';
