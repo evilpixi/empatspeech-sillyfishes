@@ -1,6 +1,6 @@
 import Component from "../components/ComponentConsts";
 import ISystem from "./ISystem";
-import Entity from "../entities/entity2"
+import Entity from "../entities/Entity"
 import ClickableComponent from "../components/ClickableComponent";
 
 export default class ClickableSystem implements ISystem
