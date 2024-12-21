@@ -8,11 +8,10 @@ export default class RandomMovementComponent implements IComponent
   public speed: number;
   public waitTime: number;
 
-  constructor({ area, speed = 2000, waitTime = 500 }:
-    { area: Phaser.Geom.Rectangle, speed?: number, waitTime?: number })
+  constructor(config: { area: Phaser.Geom.Rectangle, speed?: number, waitTime?: number })
   {
-    this.area = area;
-    this.speed = speed;
-    this.waitTime = waitTime;
+    this.area = config.area;
+    this.speed = config?.speed || 5000;
+    this.waitTime = config?.waitTime || 500;
   }
 }
