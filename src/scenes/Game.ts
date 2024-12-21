@@ -10,7 +10,7 @@ import FadeInSystem from '../systems/FadeInSystem';
 import RandomMovementComponent from '../components/RandomMovementComponent';
 import RandomMovementSystem from '../systems/RandomMovementSystem';
 import UIButton from '../ui/UIButton';
-import Fish from '../entities/Fish';
+import Fish from '../entities/fish2';
 
 const FISH_HEIGHT = GAME_HEIGHT * 0.7;
 const MARGIN = 20;
