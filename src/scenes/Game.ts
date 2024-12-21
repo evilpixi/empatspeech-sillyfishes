@@ -1,6 +1,5 @@
 import { Scene } from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../consts';
-import Entity from '../entities/Entity';
 import ClickableComponent from '../components/ClickableComponent';
 import ClickableSystem from '../systems/ClickableSystem';
 import IdleAnimationComponent from '../components/IdleAnimationComponent';
@@ -11,6 +10,7 @@ import RandomMovementComponent from '../components/RandomMovementComponent';
 import RandomMovementSystem from '../systems/RandomMovementSystem';
 import UIButton from '../ui/UIButton';
 import Fish from '../entities/Fish';
+import Entity from '../entities/Entity';
 
 const FISH_HEIGHT = GAME_HEIGHT * 0.7;
 const MARGIN = 20;
