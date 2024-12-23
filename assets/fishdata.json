@@ -7,5 +7,50 @@
     "islong": false,
     "width": 128,
     "height": 128
+  },
+  {
+    "name": "Blue Fish",
+    "id": "bluefish",
+    "canswim": true,
+    "cangroup": true,
+    "islong": false,
+    "width": 128,
+    "height": 128
+  },
+  {
+    "name": "Golden Fish",
+    "id": "goldenfish",
+    "canswim": true,
+    "cangroup": true,
+    "islong": false,
+    "width": 128,
+    "height": 128
+  },
+  {
+    "name": "Lilac Fish",
+    "id": "lilacfish",
+    "canswim": true,
+    "cangroup": true,
+    "islong": false,
+    "width": 128,
+    "height": 128
+  },
+  {
+    "name": "Blob Fish",
+    "id": "blobfish",
+    "canswim": true,
+    "cangroup": false,
+    "islong": false,
+    "width": 128,
+    "height": 128
+  },
+  {
+    "name": "Eel",
+    "id": "eel",
+    "canswim": true,
+    "cangroup": false,
+    "islong": false,
+    "width": 128,
+    "height": 128
   }
 ]
