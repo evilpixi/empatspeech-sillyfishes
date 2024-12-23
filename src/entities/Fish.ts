@@ -1,7 +1,7 @@
 export default class Fish
 {
   name: string;
-  id: string;
+  key: string;
   canSwim: boolean;
   canGroup: boolean;
   isLong: boolean;
@@ -20,7 +20,7 @@ export default class Fish
     })
   {
     this.name = data.name;
-    this.id = data.id;
+    this.key = data.id;
     this.canSwim = data.canSwim;
     this.canGroup = data.canGroup;
     this.isLong = data.isLong;

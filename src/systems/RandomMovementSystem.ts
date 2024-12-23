@@ -23,7 +23,7 @@ export default class RandomMovementSystem implements ISystem
 
     entity.flipX = entity.x > targetX;
 
-    this.scene.tweens.add({
+    const tween = this.scene.tweens.add({
       targets: entity,
       x: targetX,
       y: targetY,
@@ -37,5 +37,13 @@ export default class RandomMovementSystem implements ISystem
         });
       }
     });
+
+    movement.setMovementTween(tween);
+  }
+
+  stopMovement(entity: Entity): void
+  {
+    const movement: RandomMovementComponent | undefined = entity.getComponent(Component.RANDOM_MOVEMENT) as RandomMovementComponent;
+    movement?.movementTween?.stop();
   }
 }

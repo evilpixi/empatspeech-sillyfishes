@@ -22,19 +22,31 @@ export default class IdleAnimationSystem implements ISystem
     const animation = Animations.get(animName);
     if (animation)
     {
-      animation(this.scene, entity);
+      idleAnimationComponent.setTweens(animation(this.scene, entity));
     }
+  }
+
+  stopAnimation(entity: Entity): void
+  {
+    for (let tween of (entity.getComponent(Component.IDLE_ANIMATION) as IdleAnimationComponent).tweens)
+    {
+      tween.stop();
+    }
+
+    entity.setAngle(0);
+    entity.setScale(1);
   }
 }
 
-const Animations = new Map<string, (scene: Phaser.Scene, entity: Entity) => void>();
+const Animations = new Map<string, (scene: Phaser.Scene, entity: Entity) => Phaser.Tweens.Tween[]>();
+
 Animations.set("AlgaeAnimation", (scene: Phaser.Scene, entity: Entity) =>
 {
   entity.setOrigin(0.5, 1);
   entity.y += 64;
   if (Math.random() > 0.5) entity.flipX = true;
 
-  scene.tweens.add({
+  const tweenRotate = scene.tweens.add({
     targets: entity,
     rotation: {
       getStart: () => { return Phaser.Math.DegToRad(-7); },
@@ -48,7 +60,7 @@ Animations.set("AlgaeAnimation", (scene: Phaser.Scene, entity: Entity) =>
   }).seek(Math.random() * 6000);
 
   let randomScale = 0.8 + Math.random() * 0.6;
-  scene.tweens.add({
+  const tweenScale = scene.tweens.add({
     targets: entity,
     scaleY: {
       getStart: () => { return randomScale - Math.random() * 0.2; },
@@ -60,4 +72,40 @@ Animations.set("AlgaeAnimation", (scene: Phaser.Scene, entity: Entity) =>
     repeat: -1,
     hold: 500 * Math.random()
   }).seek(Math.random() * 6000);
+
+  return [tweenRotate, tweenScale];
+});
+
+Animations.set("FishAnimation", (scene: Phaser.Scene, entity: Entity) =>
+{
+  entity.y += 64;
+
+  const tweenRotate = scene.tweens.add({
+    targets: entity,
+    rotation: {
+      getStart: () => { return Phaser.Math.DegToRad(-2); },
+      getEnd: () => { return Phaser.Math.DegToRad(2); }
+    },
+    ease: Phaser.Math.Easing.Sine.InOut,
+    duration: 1000,
+    yoyo: true,
+    repeat: -1,
+    hold: 500 * Math.random()
+  }).seek(Math.random() * 6000);
+
+  let randomScale = 0.8 + Math.random() * 0.6;
+  const tweenScale = scene.tweens.add({
+    targets: entity,
+    scaleY: {
+      getStart: () => { return randomScale - Math.random() * 0.2; },
+      getEnd: () => { return randomScale + Math.random() * 0.2; }
+    },
+    ease: Phaser.Math.Easing.Sine.InOut,
+    duration: 3000 + Math.random() * 2000,
+    yoyo: true,
+    repeat: -1,
+    hold: 500 * Math.random()
+  }).seek(Math.random() * 6000);
+
+  return [tweenRotate, tweenScale];
 });

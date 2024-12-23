@@ -38,6 +38,11 @@ export class Preloader extends Scene
         })
         this.load.tilemapTiledJSON('map-fish1', 'assets/tilemaps/map-fish1.json');
 
+        this.load.spritesheet("particle-buble", "assets/particles/particle-buble.png", {
+            frameWidth: 128,
+            frameHeight: 128
+        });
+
         for (let fish of this.cache.json.get('fishdata'))
         {
             this.load.image(fish.id, `assets/sprites/${fish.id}.png`);
@@ -46,6 +51,13 @@ export class Preloader extends Scene
 
     create()
     {
+        this.anims.create({
+            key: 'anim-particle-bubble',
+            frames: this.anims.generateFrameNumbers('particle-buble', { start: 0, end: 2 }),
+            frameRate: 10,
+            repeat: -1
+        });
+
         this.scene.start('MainMenu');
     }
 }
