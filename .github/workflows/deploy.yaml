@@ -21,6 +21,9 @@ jobs:
         with:
           node-version: 16
 
+      - name: Set environment variables
+        run: echo "SOCKET_IO_URL=${{ secrets.SOCKET_IO_URL }}" >> $GITHUB_ENV
+    
       - name: Install dependencies
         run: npm install
 
