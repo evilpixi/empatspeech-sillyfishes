@@ -69,3 +69,7 @@ declare module '*.fs' {
     const src: string
     export default src
 }
+
+
+// consts
+declare const SOCKET_IO_URL: string;

@@ -21,12 +21,22 @@ const FishEvents = {
   GAME_RESETED: 'GAME_RESETED',
 }
 
+const Sound = {
+  BUBBLE: "sfx_bubbles",
+  POP1: "sfx_pop1",
+  POP2: "sfx_pop2",
+}
 
-//const SOCKET_IO_URL = "http://localhost:3000";
-const SOCKET_IO_URL = "https://empatspeech-silly-fishes-server.onrender.com";
+const Music = {
+  MUSIC_WATER_1: "music_little-water-dreams",
+  MUSIC_WATER_2: "music_electronica-ambient-idm-water",
+  MUSIC_WATER_3: "music_voice-of-the-water",
+  MUSIC_WATER_4: "music_water-droplets",
+}
 
 export
 {
   GAME_WIDTH, GAME_HEIGHT,
-  GameModes, FishEvents, SOCKET_IO_URL
+  GameModes, FishEvents,
+  Sound, Music
 };

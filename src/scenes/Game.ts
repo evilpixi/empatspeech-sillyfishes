@@ -1,18 +1,21 @@
 import { Scene } from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT, GameModes, FishEvents, SOCKET_IO_URL } from '../consts';
+import { GAME_WIDTH, GAME_HEIGHT, GameModes, FishEvents, Music, Sound } from '../consts';
 import ClickableComponent from '../components/ClickableComponent';
 import ClickableSystem from '../systems/ClickableSystem';
 import IdleAnimationComponent from '../components/IdleAnimationComponent';
 import IdleAnimationSystem from '../systems/IdleAnimationSystem';
+import BubblesSystem from '../systems/BubblesSystem';
 import FadeInComponent from '../components/FadeInComponent';
 import FadeInSystem from '../systems/FadeInSystem';
 import RandomMovementComponent from '../components/RandomMovementComponent';
 import RandomMovementSystem from '../systems/RandomMovementSystem';
+import BubblesComponent from '../components/BubblesComponent';
 import TextButton from '../ui/TextButton';
 import Fish from '../entities/Fish';
 import Entity from '../entities/Entity';
 import SpriteButton from '../ui/SpriteButton';
 import { io, Socket } from 'socket.io-client';
+import Utils from '../utils';
 
 const FISH_HEIGHT = GAME_HEIGHT * 0.7;
 const MARGIN = 20;
@@ -23,6 +26,7 @@ export class Game extends Scene
   private fadeInSystem: FadeInSystem;
   private clickableSystem: ClickableSystem;
   private idleAnimationSystem: IdleAnimationSystem;
+  private bubbleSystem: BubblesSystem;
   private idleAnimationEntities: Entity[] = [];
   private fishData: Fish[];
   private scoreText: Phaser.GameObjects.Text;
@@ -30,6 +34,10 @@ export class Game extends Scene
   private gameMode: string;
   private socket: Socket;
   private fishes: Map<string, Entity> = new Map();
+  private volume: number = 1;
+  private currentSongKey: string;
+  private currentSong: Phaser.Sound.HTML5AudioSound |
+    Phaser.Sound.WebAudioSound | Phaser.Sound.NoAudioSound;
 
   constructor()
   {
@@ -53,13 +61,17 @@ export class Game extends Scene
     this.idleAnimationSystem = new IdleAnimationSystem(this);
     this.idleAnimationEntities = [];
     this.fishData = this.cache.json.get('fishdata').map((data: any) => new Fish(data));
+    this.bubbleSystem = new BubblesSystem(this);
 
+    this.volume = parseInt(Utils.getFromLocalStorage("volume", "1"));
+    this.playRandomMusic();
 
 
     // --------------------------------------------------
     // ------------------ Web sockets -------------------
     // --------------------------------------------------
     this.socket = io(SOCKET_IO_URL);
+    console.log("Will try to connect to the server at: ", SOCKET_IO_URL);
 
     // --- initial connection to the websocket server
     this.socket.on("connect", () =>
@@ -97,6 +109,7 @@ export class Game extends Scene
     // --- receive the fish that was just removed by the server
     this.socket.on(FishEvents.FISH_DELETED, (id: string) =>
     {
+      this.sound.add(Sound.BUBBLE).play({ volume: this.volume });
       const fish = this.fishes.get(id);
 
       if (fish)
@@ -113,8 +126,6 @@ export class Game extends Scene
       this.score = score;
       if (this.scoreText) this.scoreText.setText(`Score: ${this.score}`);
     });
-
-
 
 
     // --------------------------------------------------
@@ -186,6 +197,11 @@ export class Game extends Scene
     // --------------------------------------------------
     // -------------- Create UI Elements-----------------
     // --------------------------------------------------
+    new TextButton(this, 200, GAME_HEIGHT - 100, 'Switch Vol', () =>
+    {
+      this.setVolume(this.volume === 1 ? 0 : 1);
+    }).setDepth(1000);
+
     if (this.gameMode === GameModes.THERAPIST)
     {
       new TextButton(this, GAME_WIDTH - 200, GAME_HEIGHT - 230, 'Random Fish', () =>
@@ -250,8 +266,7 @@ export class Game extends Scene
     let fishData: Fish | undefined;
     if (fishKey === "")
     {
-      const randomIndex: number = Math.floor(Math.random() * this.fishData.length);
-      fishData = this.fishData[randomIndex];
+      fishData = Utils.getRandomFromArray(this.fishData);
     }
     else
     {
@@ -292,17 +307,17 @@ export class Game extends Scene
     });
 
     const bubbleEmitter = this.add.particles(fish.x, fish.y, "particle-buble", {
-      speed: { min: 150, max: 250 },
-      scale: { start: 1, end: 0.5 },
+      speed: { min: 50, max: 100 },
+      angle: { min: -150, max: -30 },
+      scale: { start: 0, end: 0.6 },
       alpha: { start: 1, end: 0 },
       blendMode: 'ADD',
       anim: "anim-particle-bubble",
-      lifespan: 400,
-      frequency: 120,
-      quantity: 10
+      lifespan: 1400,
+      quantity: 5
     });
 
-    this.time.delayedCall(1000, () =>
+    this.time.delayedCall(200, () =>
     {
       bubbleEmitter.stop();
       this.tweens.add({
@@ -341,6 +356,10 @@ export class Game extends Scene
     fish.addComponent(new ClickableComponent(handleClick));
     this.clickableSystem.processEntity(fish);
 
+
+    fish.addComponent(new BubblesComponent("particle-bubble"));
+    this.bubbleSystem.processEntity(fish);
+
     // fade in the fish
     fish.addComponent(new FadeInComponent(1000));
     this.fadeInSystem.processEntity(fish);
@@ -360,5 +379,24 @@ export class Game extends Scene
   update()
   {
     this.scoreText.setText(`Score: ${this.score}`);
+  }
+
+  playRandomMusic()
+  {
+    this.currentSongKey = Utils.getRandomFromArray(Object.values(Music));
+    this.currentSong = this.sound.add(this.currentSongKey, { volume: this.volume });
+    this.currentSong.play();
+
+    this.currentSong.on('complete', () =>
+    {
+      this.playRandomMusic();
+    });
+  }
+
+  setVolume(volume: number)
+  {
+    this.volume = volume;
+    this.currentSong.setVolume(volume);
+    Utils.setToLocalStorage("volume", this.volume);
   }
 }
