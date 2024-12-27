@@ -22,7 +22,8 @@ const FishEvents = {
 }
 
 
-const SOCKET_IO_URL = "http://localhost:3000";
+//const SOCKET_IO_URL = "http://localhost:3000";
+const SOCKET_IO_URL = "https://empatspeech-silly-fishes-server.onrender.com";
 
 export
 {
