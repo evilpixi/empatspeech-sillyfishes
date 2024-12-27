@@ -29,6 +29,7 @@ export class Game extends Scene
   private score: number = 0;
   private gameMode: string;
   private socket: Socket;
+  private fishes: Map<string, Entity> = new Map();
 
   constructor()
   {
@@ -43,36 +44,77 @@ export class Game extends Scene
 
   create()
   {
-    this.socket = io(SOCKET_IO_URL);
-
-    this.socket.on("connect", () =>
-    {
-      console.log("Connected to server!");
-      this.socket.emit(FishEvents.USER_CONNECTED, { userType: this.gameMode });
-    });
-
-    this.socket.on(FishEvents.FISH_INITIALIZE, (data: any[]) =>
-    {
-      console.log("Fish Initialized: ", data);
-      for (let fish of data)
-      {
-        this.SpawnLocalFish(fish.fishKey, fish.x, fish.y, fish.id, fish.isGroup);
-      }
-    });
-
-    this.socket.on(FishEvents.FISH_SPAWNED, (data: any) =>
-    {
-      console.log("New Fish Spawned: ", data);
-      this.SpawnLocalFish(data.fishKey, data.x, data.y, data.id, data.isGroup);
-    });
-
-
+    // --------------------------------------------------
+    // ----------------- Start Systems ------------------
+    // --------------------------------------------------
     this.randomMovementSystem = new RandomMovementSystem(this);
     this.fadeInSystem = new FadeInSystem(this);
     this.clickableSystem = new ClickableSystem(this);
     this.idleAnimationSystem = new IdleAnimationSystem(this);
     this.idleAnimationEntities = [];
     this.fishData = this.cache.json.get('fishdata').map((data: any) => new Fish(data));
+
+
+
+    // --------------------------------------------------
+    // ------------------ Web sockets -------------------
+    // --------------------------------------------------
+    this.socket = io(SOCKET_IO_URL);
+
+    // --- initial connection to the websocket server
+    this.socket.on("connect", () =>
+    {
+      console.log("Connected to server!");
+      this.socket.emit(FishEvents.USER_CONNECTED, { userType: this.gameMode });
+    });
+
+    this.socket.on(FishEvents.GAME_RESETED, () =>
+    {
+      this.fishes.forEach((fish) =>
+      {
+        this.KillLocalFish(fish);
+      });
+    });
+
+    // --- the server will send the initial fish data
+    this.socket.on(FishEvents.FISH_INITIALIZE, (data: any[]) =>
+    {
+      console.log("Fish Initialized: ", data);
+      this.fishes.clear();
+      for (let fish of data)
+      {
+        this.SpawnLocalFish(fish.fishKey, fish.x, fish.y, fish.id, fish.isGroup);
+      }
+    });
+
+    // --- receive the fish that was just spawned by the server
+    this.socket.on(FishEvents.FISH_SPAWNED, (data: any) =>
+    {
+      console.log("New Fish Spawned: ", data);
+      this.SpawnLocalFish(data.fishKey, data.x, data.y, data.id, data.isGroup);
+    });
+
+    // --- receive the fish that was just removed by the server
+    this.socket.on(FishEvents.FISH_DELETED, (id: string) =>
+    {
+      const fish = this.fishes.get(id);
+
+      if (fish)
+      {
+        this.KillLocalFish(fish);
+      }
+
+      console.log("Fish Deleted: ", id, fish);
+    });
+
+    // --- receive score update
+    this.socket.on(FishEvents.SCORE_UPDATED, (score: number) =>
+    {
+      this.score = score;
+      if (this.scoreText) this.scoreText.setText(`Score: ${this.score}`);
+    });
+
+
 
 
     // --------------------------------------------------
@@ -93,6 +135,7 @@ export class Game extends Scene
 
     if (!tileset) return;
 
+    // back background objects
     map.createLayer("backsand", tileset, 0, GAME_HEIGHT / 2 - 100);
 
     let backgroundObjects = map.createFromObjects("backobjs", { classType: Entity }) as Entity[];
@@ -102,10 +145,11 @@ export class Game extends Scene
       if (obj.moves) this.idleAnimationEntities.push(obj);
     }
 
+    // bubble particles
     const n = 5;
     for (let i = 1; i <= n; i++)
     {
-      const emitter = this.add.particles((GAME_WIDTH / (n + 1)) * i, FISH_HEIGHT + 100, "particle-buble", {
+      this.add.particles((GAME_WIDTH / (n + 1)) * i, FISH_HEIGHT + 100, "particle-buble", {
         speed: { min: 20, max: 80 },
         angle: { min: -120, max: -60 },
         scale: { start: 0.5, end: 0 },
@@ -117,6 +161,7 @@ export class Game extends Scene
       });
     }
 
+    // front background objects
     let foregroundObjects = map.createFromObjects("frontobjs", { classType: Entity }) as Entity[];
     for (let obj of foregroundObjects)
     {
@@ -124,9 +169,8 @@ export class Game extends Scene
       if (obj.moves) this.idleAnimationEntities.push(obj);
     }
 
-
-
     map.createLayer("frontsand", tileset, 0, GAME_HEIGHT / 2 - 90);
+
 
 
     // ----------------------------------------------------------------
@@ -144,16 +188,50 @@ export class Game extends Scene
     // --------------------------------------------------
     if (this.gameMode === GameModes.THERAPIST)
     {
-      new TextButton(this, GAME_WIDTH - 200, GAME_HEIGHT - 100, 'Spawn Fish', () =>
+      new TextButton(this, GAME_WIDTH - 200, GAME_HEIGHT - 230, 'Random Fish', () =>
       {
         this.SpawnServerFish();
-      });
+      }).setDepth(1000);
 
-      new SpriteButton(this, GAME_WIDTH - 100, 100, 'redfish', () =>
+      new TextButton(this, GAME_WIDTH - 200, GAME_HEIGHT - 100, 'Reset', () =>
       {
-        console.log("Red Fish Clicked!");
+        this.socket.emit(FishEvents.FULL_RESET);
+      }).setDepth(1000);
+
+      new SpriteButton(this, GAME_WIDTH - 230, 80, 'redfish', () =>
+      {
         this.SpawnServerFish("redfish");
-      }, 128, 128, 0xeb7130);
+      }).setDepth(1000);
+
+      new SpriteButton(this, GAME_WIDTH - 80, 80, 'bluefish', () =>
+      {
+        this.SpawnServerFish("bluefish");
+      }).setDepth(1000);
+
+      new SpriteButton(this, GAME_WIDTH - 80, 230, 'blobfish', () =>
+      {
+        this.SpawnServerFish("blobfish");
+      }).setDepth(1000);
+
+      new SpriteButton(this, GAME_WIDTH - 230, 230, 'lilacfish', () =>
+      {
+        this.SpawnServerFish("lilacfish");
+      }).setDepth(1000);
+
+      new SpriteButton(this, GAME_WIDTH - 230, 380, 'goldenfish', () =>
+      {
+        this.SpawnServerFish("goldenfish");
+      }).setDepth(1000);
+
+      new SpriteButton(this, GAME_WIDTH - 80, 380, 'greenfish', () =>
+      {
+        this.SpawnServerFish("greenfish");
+      }).setDepth(1000);
+
+      new SpriteButton(this, GAME_WIDTH - 80, 530, 'eel', () =>
+      {
+        this.SpawnServerFish("eel");
+      }).setDepth(1000);
     }
 
     this.scoreText = this.add.text(10, 10, 'Score: 0', {
@@ -190,6 +268,58 @@ export class Game extends Scene
     this.socket.emit(FishEvents.SPAWN_FISH, { fishKey: fishData.key, isGroup, x, y });
   }
 
+  KillLocalFish(fish: Entity): void
+  {
+    const fishKey = fish.getFishType();
+    let scaleX = fish.scaleX;
+    let scaleY = fish.scaleY;
+    fish.setOrigin(0.5, 0.5);
+    fish.setDepth(100);
+    fish.postFX.addGlow(0xffffff, 1.5, 1.5);
+
+    console.log("Fish Clicked!: " + fishKey);
+    this.idleAnimationSystem.stopAnimation(fish);
+    this.randomMovementSystem.stopMovement(fish);
+
+    fish.setScale(scaleX, scaleY);
+    this.tweens.add({
+      targets: fish,
+      scaleX: scaleX * 1.2,
+      scaleY: scaleY * 1.2,
+      yoyo: true,
+      duration: 300,
+      ease: 'Power1'
+    });
+
+    const bubbleEmitter = this.add.particles(fish.x, fish.y, "particle-buble", {
+      speed: { min: 150, max: 250 },
+      scale: { start: 1, end: 0.5 },
+      alpha: { start: 1, end: 0 },
+      blendMode: 'ADD',
+      anim: "anim-particle-bubble",
+      lifespan: 400,
+      frequency: 120,
+      quantity: 10
+    });
+
+    this.time.delayedCall(1000, () =>
+    {
+      bubbleEmitter.stop();
+      this.tweens.add({
+        targets: fish,
+        alpha: 0,
+        duration: 300,
+        ease: 'Power1',
+        onComplete: () =>
+        {
+          fish.postFX.clear();
+          this.idleAnimationSystem.processEntity(fish);
+          this.randomMovementSystem.processEntity(fish);
+        }
+      })
+    });
+  }
+
   SpawnLocalFish(fishKey: string, x: number, y: number, id: string, isGroup: boolean = false): void
   {
     console.log("Spawn Local Fish: ", fishKey, x, y, isGroup);
@@ -197,60 +327,17 @@ export class Game extends Scene
     {
       console.log("not implemented yet")
     }
+
     const fish = new Entity(this, x, y, fishKey);
+    fish.setId(id);
+    this.fishes.set(id, fish);
 
     // add a clickable component to the fish
     const handleClick = () =>
     {
-      let scaleX = fish.scaleX;
-      let scaleY = fish.scaleY;
-      fish.setOrigin(0.5, 0.5);
-      fish.setDepth(100);
-      fish.postFX.addGlow(0xffffff, 1.5, 1.5);
+      this.socket.emit(FishEvents.FISH_MARKED_FOR_DELETE, id);
+    }
 
-      console.log("Fish Clicked!: " + fishKey);
-      this.idleAnimationSystem.stopAnimation(fish);
-      this.randomMovementSystem.stopMovement(fish);
-
-      fish.setScale(scaleX, scaleY);
-      this.tweens.add({
-        targets: fish,
-        scaleX: scaleX * 1.2,
-        scaleY: scaleY * 1.2,
-        yoyo: true,
-        duration: 300,
-        ease: 'Power1'
-      });
-
-      const bubbleEmitter = this.add.particles(fish.x, fish.y, "particle-buble", {
-        speed: { min: 150, max: 250 },
-        scale: { start: 1, end: 0.5 },
-        alpha: { start: 1, end: 0 },
-        blendMode: 'ADD',
-        anim: "anim-particle-bubble",
-        lifespan: 400,
-        frequency: 120,
-        quantity: 10
-      });
-
-      this.time.delayedCall(1000, () =>
-      {
-        bubbleEmitter.stop();
-        this.tweens.add({
-          targets: fish,
-          alpha: 0,
-          duration: 300,
-          ease: 'Power1',
-          onComplete: () =>
-          {
-            fish.postFX.clear();
-            this.idleAnimationSystem.processEntity(fish);
-            this.randomMovementSystem.processEntity(fish);
-            this.events.emit("ON_FISH_CLICKED", fishKey);
-          }
-        })
-      });
-    };
     fish.addComponent(new ClickableComponent(handleClick));
     this.clickableSystem.processEntity(fish);
 

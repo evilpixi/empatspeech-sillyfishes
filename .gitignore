@@ -24,3 +24,5 @@ RAW*
 *.njsproj
 *.sln
 *.sw?
+
+.env
