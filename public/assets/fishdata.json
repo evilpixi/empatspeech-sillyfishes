@@ -6,7 +6,8 @@
     "cangroup": true,
     "islong": false,
     "width": 128,
-    "height": 128
+    "height": 128,
+    "score": 10
   },
   {
     "name": "Blue Fish",
@@ -15,7 +16,8 @@
     "cangroup": true,
     "islong": false,
     "width": 128,
-    "height": 128
+    "height": 128,
+    "score": 8
   },
   {
     "name": "Golden Fish",
@@ -24,7 +26,18 @@
     "cangroup": true,
     "islong": false,
     "width": 128,
-    "height": 128
+    "height": 128,
+    "score": 9
+  },
+  {
+    "name": "Green Fish",
+    "id": "greenfish",
+    "canswim": true,
+    "cangroup": true,
+    "islong": false,
+    "width": 128,
+    "height": 128,
+    "score": 7
   },
   {
     "name": "Lilac Fish",
@@ -33,7 +46,8 @@
     "cangroup": true,
     "islong": false,
     "width": 128,
-    "height": 128
+    "height": 128,
+    "score": 6
   },
   {
     "name": "Blob Fish",
@@ -42,7 +56,8 @@
     "cangroup": false,
     "islong": false,
     "width": 128,
-    "height": 128
+    "height": 128,
+    "score": 5
   },
   {
     "name": "Eel",
@@ -51,6 +66,7 @@
     "cangroup": false,
     "islong": false,
     "width": 128,
-    "height": 128
+    "height": 128,
+    "score": 4
   }
 ]

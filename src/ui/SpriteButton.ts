@@ -17,6 +17,7 @@ export default class SpriteButton extends UIButton
     super(scene, x, y, width, height, callback, color);
 
     this.buttonSprite = scene.add.sprite(0, 0, texture);
+    this.buttonSprite.postFX.addGlow(0x000000, 2, 0, false, 2, 3);
     this.add(this.buttonSprite);
 
     this.button.on('pointerdown', () =>
