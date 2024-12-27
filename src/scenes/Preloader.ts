@@ -1,5 +1,5 @@
 import { Scene } from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT } from '../consts';
+import { GAME_WIDTH, GAME_HEIGHT, Music, Sound } from '../consts';
 
 export class Preloader extends Scene
 {
@@ -22,6 +22,14 @@ export class Preloader extends Scene
 
     preload()
     {
+        for (let music of Object.values(Music))
+        {
+            this.load.audio(music, `assets/audio/${music}.mp3`);
+        }
+        for (let sound of Object.values(Sound))
+        {
+            this.load.audio(sound, `assets/audio/${sound}.wav`);
+        }
         this.load.font("Alatsi", "assets/fonts/Alatsi-Regular.ttf");
 
         this.load.spritesheet("spritesheet-fish1", "assets/tilemaps/spritesheet-fish1.png", {

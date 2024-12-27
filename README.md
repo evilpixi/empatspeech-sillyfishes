@@ -1,20 +1,26 @@
 # EmpatSpeech Silly Fishes
 
-A game about the life under the sea.
+The client for a game about the life under the sea.
 
-### Versions
-
-This template has been updated for:
-
-- [Phaser 3.87.0](https://github.com/phaserjs/phaser)
-- [esbuild 0.21.2](https://github.com/evanw/esbuild)
-- [TypeScript 5.4.5](https://github.com/microsoft/TypeScript)
-
-![screenshot](screenshot.png)
+if you are looking for the Server look at [this repo](https://github.com/evilpixi/empatspeech-silly-fishes-server).
 
 ## Requirements
 
-[Node.js](https://nodejs.org) is required to install dependencies and run scripts via `npm`.
+- [Node.js](https://nodejs.org) is required to install dependencies and run scripts via `npm`.
+- `.env` file with a valid `SOCKET_IO_URL`, or a `SOCKET_IO_URL` environment variable that represents the Server.
+- A running server.
+
+## Usage
+Simply enter to the game url and (assuming you have a configured server running) choose to play as Pacient or Therapist.
+If you are a therapist, you can click the fish buttons to spawn fishes in the server.
+If you are a pacient you can click on fishes in order to boop them and get new score.
+If anything wrong happens you can click the Reset button as a therapist in order to restart the game.
+
+For devs: if you want to implement microphone speech recognition to choose a specific fish, you may want to use this command:
+```js
+socket.emit(FishEvents.FISH_MARKED_FOR_DELETE, fish_id);
+```
+to mark the selected fish to be deleted in the server when the speech sound is correct.
 
 ## Available Commands
 
@@ -30,6 +36,7 @@ This template has been updated for:
 
 We have provided a default project structure to get you started. This is as follows:
 
+- `.env` - Project environment variables.
 - `public/index.html` - A basic HTML page to contain the game.
 - `src` - Contains the game source code.
 - `src/main.ts` - The main entry point. This contains the game configuration and starts the game.
@@ -43,6 +50,8 @@ We have provided a default project structure to get you started. This is as foll
 After you run the `npm run build` command, your code will be built into a single bundle and saved to the `dist` folder, along with any other assets your project imported, or stored in the public assets folder.
 
 In order to deploy your game, you will need to upload *all* of the contents of the `dist` folder to a public facing web server.
+
+Then you have to configure a `SOCKET_IO_URL` environment variable, both by a `.env` local file or by your hosting provider variables.
 
 ## About log.js
 
@@ -93,6 +102,6 @@ Either of these will stop `log.js` from running. If you do decide to do this, pl
 
 
 
-Created by [Phaser Studio](mailto:support@phaser.io). Powered by coffee, anime, pixels and love.
+Created by Evilpixi using Phaser Template by [Phaser Studio](mailto:support@phaser.io). Powered by coffee, anime, pixels and love.
 
 All rights reserved.
