@@ -4,6 +4,8 @@ The client for a game about the life under the sea.
 
 if you are looking for the Server look at [this repo](https://github.com/evilpixi/empatspeech-silly-fishes-server).
 
+live: [https://evilpixi.github.io/empatspeech-sillyfishes/](https://evilpixi.github.io/empatspeech-sillyfishes/)
+
 ## Requirements
 
 - [Node.js](https://nodejs.org) is required to install dependencies and run scripts via `npm`.
