@@ -383,6 +383,7 @@ export class Game extends Scene
       speed: 5000,
       waitTime: 300
     });
+    console.log("Create Random Movement Component: ", randomMovementComponent);
     randomMovementComponent.setMovementData(randomMovement || {});
     fish.addComponent(randomMovementComponent);
 
