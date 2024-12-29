@@ -133,10 +133,13 @@ export class Game extends Scene
       if (fish)
       {
         const randomMovementComponent = fish.getComponent(RandomMovementComponent.name) as RandomMovementComponent;
-        randomMovementComponent.setMovementData({
+        console.log(randomMovementComponent);
+        randomMovementComponent?.setMovementData({
           targetX: data.targetX,
           targetY: data.targetY
         });
+        if (!randomMovementComponent) console.log("No random movement component found", randomMovementComponent);
+        if (!randomMovementComponent) return;
         this.randomMovementSystem.processEntity(fish);
       }
     });
