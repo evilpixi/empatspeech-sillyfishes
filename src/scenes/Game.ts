@@ -16,6 +16,7 @@ import Entity from '../entities/Entity';
 import SpriteButton from '../ui/SpriteButton';
 import { io, Socket } from 'socket.io-client';
 import Utils from '../utils';
+import Component from '../components/ComponentConsts';
 
 const FISH_HEIGHT = GAME_HEIGHT * 0.7;
 const MARGIN = 20;
@@ -132,7 +133,7 @@ export class Game extends Scene
       const fish = this.fishes.get(data.id);
       if (fish)
       {
-        const randomMovementComponent = fish.getComponent(RandomMovementComponent.name) as RandomMovementComponent;
+        const randomMovementComponent = fish.getComponent(Component.RANDOM_MOVEMENT) as RandomMovementComponent;
         console.log(randomMovementComponent);
         randomMovementComponent?.setMovementData({
           targetX: data.targetX,

@@ -16,6 +16,7 @@ export default class RandomMovementSystem implements ISystem
   {
     const movement = entity.getComponent(Component.RANDOM_MOVEMENT) as RandomMovementComponent;
 
+    console.log("---> mov <<< ", movement);
     if (!movement || movement.getIsStopped()) return;
 
     const movData: { targetX?: number, targetY?: number } = movement.getMovementData() || {};
