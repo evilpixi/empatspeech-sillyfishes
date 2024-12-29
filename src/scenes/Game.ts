@@ -95,7 +95,7 @@ export class Game extends Scene
       this.fishes.clear();
       for (let fish of data)
       {
-        this.SpawnLocalFish(fish.fishKey, fish.x, fish.y, fish.id, fish.isGroup);
+        this.SpawnLocalFish(fish.fishKey, fish.x, fish.y, fish.id, fish.isGroup, { targetX: fish.targetX, targetY: fish.targetY });
       }
     });
 
@@ -103,13 +103,12 @@ export class Game extends Scene
     this.socket.on(FishEvents.FISH_SPAWNED, (data: any) =>
     {
       console.log("New Fish Spawned: ", data);
-      this.SpawnLocalFish(data.fishKey, data.x, data.y, data.id, data.isGroup);
+      this.SpawnLocalFish(data.fishKey, data.x, data.y, data.id, data.isGroup, { targetX: data.targetX, targetY: data.targetY });
     });
 
     // --- receive the fish that was just removed by the server
     this.socket.on(FishEvents.FISH_DELETED, (id: string) =>
     {
-      this.sound.add(Sound.BUBBLE).play({ volume: this.volume });
       const fish = this.fishes.get(id);
 
       if (fish)
@@ -125,6 +124,21 @@ export class Game extends Scene
     {
       this.score = score;
       if (this.scoreText) this.scoreText.setText(`Score: ${this.score}`);
+    });
+
+    // --- update fish movement
+    this.socket.on(FishEvents.FISH_UPDATED, (data: any) =>
+    {
+      const fish = this.fishes.get(data.id);
+      if (fish)
+      {
+        const randomMovementComponent = fish.getComponent(RandomMovementComponent.name) as RandomMovementComponent;
+        randomMovementComponent.setMovementData({
+          targetX: data.targetX,
+          targetY: data.targetY
+        });
+        this.randomMovementSystem.processEntity(fish);
+      }
     });
 
 
@@ -285,17 +299,16 @@ export class Game extends Scene
 
   KillLocalFish(fish: Entity): void
   {
-    const fishKey = fish.getFishType();
     let scaleX = fish.scaleX;
     let scaleY = fish.scaleY;
     fish.setOrigin(0.5, 0.5);
     fish.setDepth(100);
     fish.postFX.addGlow(0xffffff, 1.5, 1.5);
 
-    console.log("Fish Clicked!: " + fishKey);
     this.idleAnimationSystem.stopAnimation(fish);
     this.randomMovementSystem.stopMovement(fish);
 
+    // accent animation
     fish.setScale(scaleX, scaleY);
     this.tweens.add({
       targets: fish,
@@ -306,6 +319,7 @@ export class Game extends Scene
       ease: 'Power1'
     });
 
+    // bubbles that appear when the fish is killed
     const bubbleEmitter = this.add.particles(fish.x, fish.y, "particle-buble", {
       speed: { min: 50, max: 100 },
       angle: { min: -150, max: -30 },
@@ -316,7 +330,9 @@ export class Game extends Scene
       lifespan: 1400,
       quantity: 5
     });
+    this.sound.add(Sound.BUBBLE).play({ volume: this.volume });
 
+    // dissapear animation
     this.time.delayedCall(200, () =>
     {
       bubbleEmitter.stop();
@@ -324,18 +340,12 @@ export class Game extends Scene
         targets: fish,
         alpha: 0,
         duration: 300,
-        ease: 'Power1',
-        onComplete: () =>
-        {
-          fish.postFX.clear();
-          this.idleAnimationSystem.processEntity(fish);
-          this.randomMovementSystem.processEntity(fish);
-        }
+        ease: 'Power1'
       })
     });
   }
 
-  SpawnLocalFish(fishKey: string, x: number, y: number, id: string, isGroup: boolean = false): void
+  SpawnLocalFish(fishKey: string, x: number, y: number, id: string, isGroup: boolean = false, randomMovement?: object): void
   {
     console.log("Spawn Local Fish: ", fishKey, x, y, isGroup);
     if (isGroup)
@@ -365,11 +375,14 @@ export class Game extends Scene
     this.fadeInSystem.processEntity(fish);
 
     // random movement fish
-    fish.addComponent(new RandomMovementComponent({
+    const randomMovementComponent = new RandomMovementComponent({
       area: new Phaser.Geom.Rectangle(MARGIN, MARGIN, GAME_WIDTH - MARGIN * 2, FISH_HEIGHT - MARGIN * 2),
       speed: 5000,
       waitTime: 300
-    }));
+    });
+    randomMovementComponent.setMovementData(randomMovement || {});
+    fish.addComponent(randomMovementComponent);
+
     this.randomMovementSystem.processEntity(fish);
 
     fish.addComponent(new IdleAnimationComponent("FishAnimation"));

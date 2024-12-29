@@ -80,6 +80,7 @@ Animations.set("FishAnimation", (scene: Phaser.Scene, entity: Entity) =>
 {
   entity.y += 64;
 
+  // this makes the fish look up and down while swimming
   const tweenRotate = scene.tweens.add({
     targets: entity,
     rotation: {
@@ -93,6 +94,7 @@ Animations.set("FishAnimation", (scene: Phaser.Scene, entity: Entity) =>
     hold: 500 * Math.random()
   }).seek(Math.random() * 6000);
 
+  // this makes the fish look bigger and smaller while swimming
   let randomScale = 0.8 + Math.random() * 0.6;
   const tweenScale = scene.tweens.add({
     targets: entity,

@@ -16,11 +16,11 @@ export default class RandomMovementSystem implements ISystem
   {
     const movement = entity.getComponent(Component.RANDOM_MOVEMENT) as RandomMovementComponent;
 
-    if (!movement) return;
+    if (!movement || movement.getIsStopped()) return;
 
-    const targetX = Phaser.Math.Between(movement.area.x, movement.area.width);
-    const targetY = Phaser.Math.Between(movement.area.y, movement.area.height);
-
+    const movData: { targetX?: number, targetY?: number } = movement.getMovementData() || {};
+    const targetX = movData?.targetX || Phaser.Math.Between(movement.area.x, movement.area.width);
+    const targetY = movData?.targetY || Phaser.Math.Between(movement.area.y, movement.area.height);
     entity.flipX = entity.x > targetX;
 
     const tween = this.scene.tweens.add({
@@ -29,13 +29,7 @@ export default class RandomMovementSystem implements ISystem
       y: targetY,
       duration: movement.speed,
       ease: 'Sine.easeInOut',
-      onComplete: () =>
-      {
-        this.scene.time.delayedCall(movement.waitTime, () =>
-        {
-          this.processEntity(entity);
-        });
-      }
+
     });
 
     movement.setMovementTween(tween);
@@ -44,6 +38,8 @@ export default class RandomMovementSystem implements ISystem
   stopMovement(entity: Entity): void
   {
     const movement: RandomMovementComponent | undefined = entity.getComponent(Component.RANDOM_MOVEMENT) as RandomMovementComponent;
-    movement?.movementTween?.stop();
+    if (!movement || movement.getIsStopped()) return;
+    movement?.setStopped(true);
+    movement?.getMovementTween()?.stop();
   }
 }

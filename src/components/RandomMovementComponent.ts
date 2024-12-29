@@ -7,7 +7,9 @@ export default class RandomMovementComponent implements IComponent
   public area: Phaser.Geom.Rectangle;
   public speed: number;
   public waitTime: number;
-  public movementTween?: Phaser.Tweens.Tween;
+  private movementTween?: Phaser.Tweens.Tween;
+  private tweenData?: object;
+  private isStopped: boolean = false;
 
   constructor(config: { area: Phaser.Geom.Rectangle, speed?: number, waitTime?: number })
   {
@@ -19,5 +21,30 @@ export default class RandomMovementComponent implements IComponent
   setMovementTween(tween: Phaser.Tweens.Tween)
   {
     this.movementTween = tween;
+  }
+
+  getMovementTween(): Phaser.Tweens.Tween | undefined
+  {
+    return this.movementTween;
+  }
+
+  setMovementData(data: object)
+  {
+    this.tweenData = data;
+  }
+
+  getMovementData(): object | undefined
+  {
+    return this.tweenData;
+  }
+
+  setStopped(value: boolean)
+  {
+    this.isStopped = value;
+  }
+
+  getIsStopped(): boolean
+  {
+    return this.isStopped;
   }
 }
