@@ -385,7 +385,9 @@ export class Game extends Scene
     });
     console.log("Create Random Movement Component: ", randomMovementComponent);
     randomMovementComponent.setMovementData(randomMovement || {});
+    console.log("Set Movement Data: ", randomMovementComponent.getMovementData());
     fish.addComponent(randomMovementComponent);
+    console.log("-->", fish.getComponent(randomMovementComponent.name));
 
     this.randomMovementSystem.processEntity(fish);
 
